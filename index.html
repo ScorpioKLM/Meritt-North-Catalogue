@@ -2709,7 +2709,7 @@ h3.sub-title{
   function createCanonicalItemKey(name,itemPrice){
     var normalizedName=name.toLowerCase().replace(/\s+/g,' ').trim();
     var normalizedPrice=Number(itemPrice||0).toFixed(2);
-    return normalizedName+'::'+normalizedPrice;
+    return JSON.stringify([normalizedName,normalizedPrice]);
   }
 
   function generateItemKey(card,name,itemPrice){
@@ -2742,6 +2742,13 @@ h3.sub-title{
     cards.forEach(function(card){
       card.classList.toggle('is-selected',isSelected);
       card.setAttribute('aria-pressed',isSelected?'true':'false');
+    });
+  }
+
+  function clearCardSelectionState(){
+    itemCards.forEach(function(card){
+      card.classList.remove('is-selected');
+      card.setAttribute('aria-pressed','false');
     });
   }
 
@@ -2837,9 +2844,7 @@ h3.sub-title{
     closeModal();
     form.reset();
     selectedMap.clear();
-    cardsByKey.forEach(function(_,key){
-      setCardSelectionState(key,false);
-    });
+    clearCardSelectionState();
     renderSelection();
     if(statusMsg) statusMsg.textContent='Selections cleared. You can start a new inquiry.';
     var nameField=document.getElementById('quote-name');
@@ -2872,9 +2877,7 @@ h3.sub-title{
     }).then(function(){
       form.reset();
       selectedMap.clear();
-      cardsByKey.forEach(function(_,key){
-        setCardSelectionState(key,false);
-      });
+      clearCardSelectionState();
       renderSelection();
       openModal();
     }).catch(function(err){
