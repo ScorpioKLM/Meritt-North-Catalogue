@@ -2674,7 +2674,7 @@ h3.sub-title{
 
 <script>
 (function(){
-  var itemCards=[].slice.call(document.querySelectorAll('.prod,.bundle,.sum-row'));
+  var itemCards=Array.from(document.querySelectorAll('.prod,.bundle,.sum-row'));
   var selectedMap=new Map();
   var cardsByKey=new Map();
   var checklist=document.getElementById('quote-checklist');
