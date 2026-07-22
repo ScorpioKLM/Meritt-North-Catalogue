@@ -2708,14 +2708,13 @@ h3.sub-title{
 
   function createCanonicalItemKey(name,itemPrice){
     var normalizedName=name.toLowerCase().replace(/\s+/g,' ').trim();
-    return normalizedName+'::'+itemPrice;
+    var normalizedPrice=Number(itemPrice||0).toFixed(2);
+    return normalizedName+'::'+normalizedPrice;
   }
 
   function generateItemKey(card,name,itemPrice){
     var canonicalKey=card.getAttribute('data-quote-item-key');
     if(canonicalKey) return canonicalKey;
-    var cardId=card.getAttribute('data-quote-item-id');
-    if(cardId) return cardId;
     return createCanonicalItemKey(name,itemPrice);
   }
 
@@ -2797,11 +2796,10 @@ h3.sub-title{
     renderSelection();
   }
 
-  itemCards.forEach(function(card,index){
+  itemCards.forEach(function(card){
     var item=getItemData(card);
     card.setAttribute('data-quote-item-key',item.key);
     card.classList.add('is-selectable');
-    card.setAttribute('data-quote-item-id','item-'+index);
     card.setAttribute('tabindex','0');
     card.setAttribute('role','button');
     card.setAttribute('aria-pressed','false');
