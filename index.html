@@ -2754,7 +2754,7 @@ h3.sub-title{
 
   function renderSelection(){
     checklist.innerHTML='';
-    var items=[].slice.call(selectedMap.values());
+    var items=Array.from(selectedMap.values());
     if(!items.length){
       emptyState.style.display='block';
       totalWrap.hidden=true;
