@@ -514,16 +514,21 @@ h3.sub-title{
 .quote-submit:disabled{opacity:.65;cursor:wait;}
 .quote-error{display:none;font-size:0.82rem;color:#f2a9a9;}
 .quote-error.show{display:block;}
-.prod.is-selectable,.bundle.is-selectable{cursor:pointer;}
-.prod.is-selectable:focus-visible,.bundle.is-selectable:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px;}
+.prod.is-selectable,.bundle.is-selectable,.sum-row.is-selectable{cursor:pointer;}
+.prod.is-selectable:focus-visible,.bundle.is-selectable:focus-visible,.sum-row.is-selectable:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px;}
 .prod.is-selected,.bundle.is-selected{
   box-shadow:0 0 0 1px rgba(201,162,39,0.75),0 22px 44px -16px rgba(0,0,0,0.85);
+}
+.sum-row.is-selected{
+  background:rgba(201,162,39,0.22);
 }
 .prod.is-selected::after,.bundle.is-selected::after{
   content:'Selected';position:absolute;top:10px;right:10px;
   font-size:0.64rem;letter-spacing:0.6px;text-transform:uppercase;
   color:#092710;background:#bcf4d5;border-radius:30px;padding:3px 9px;font-weight:700;
 }
+.sum-row.is-selected .sr-n{color:#fff;}
+.sum-row.is-selected .sr-p{box-shadow:0 0 0 1px rgba(201,162,39,0.48);}
 .quote-modal{
   position:fixed;inset:0;background:rgba(5,5,5,0.64);display:flex;align-items:center;justify-content:center;
   padding:18px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s ease;
@@ -2669,8 +2674,9 @@ h3.sub-title{
 
 <script>
 (function(){
-  var itemCards=[].slice.call(document.querySelectorAll('.prod,.bundle'));
+  var itemCards=[].slice.call(document.querySelectorAll('.prod,.bundle,.sum-row'));
   var selectedMap=new Map();
+  var cardsByKey=new Map();
   var checklist=document.getElementById('quote-checklist');
   var emptyState=document.getElementById('quote-empty');
   var totalWrap=document.getElementById('quote-total');
@@ -2700,11 +2706,17 @@ h3.sub-title{
     return '$'+n.toLocaleString();
   }
 
+  function createCanonicalItemKey(name,itemPrice){
+    var normalizedName=name.toLowerCase().replace(/\s+/g,' ').trim();
+    return normalizedName+'::'+itemPrice;
+  }
+
   function generateItemKey(card,name,itemPrice){
+    var canonicalKey=card.getAttribute('data-quote-item-key');
+    if(canonicalKey) return canonicalKey;
     var cardId=card.getAttribute('data-quote-item-id');
     if(cardId) return cardId;
-    var normalizedName=name.toLowerCase().replace(/\s+/g,' ').trim();
-    return normalizedName+'::'+itemPrice+'::unindexed';
+    return createCanonicalItemKey(name,itemPrice);
   }
 
   function stripAngleBrackets(value){
@@ -2712,17 +2724,26 @@ h3.sub-title{
   }
 
   function getItemData(card){
-    var titleEl=card.querySelector('h4');
-    var priceEl=card.querySelector('.price,.b-price');
+    var titleEl=card.querySelector('h4,.sr-n');
+    var priceEl=card.querySelector('.price,.b-price,.sr-p');
     var name=titleEl?titleEl.textContent.trim():'Catalog Item';
     var rawPrice=priceEl?priceEl.textContent.trim():'$0';
     var itemPrice=parsePrice(rawPrice);
+    var itemKey=generateItemKey(card,name,itemPrice);
     return {
-      key:generateItemKey(card,name,itemPrice),
+      key:itemKey,
       name:name,
       priceLabel:rawPrice,
       priceValue:itemPrice
     };
+  }
+
+  function setCardSelectionState(key,isSelected){
+    var cards=cardsByKey.get(key)||[];
+    cards.forEach(function(card){
+      card.classList.toggle('is-selected',isSelected);
+      card.setAttribute('aria-pressed',isSelected?'true':'false');
+    });
   }
 
   function renderSelection(){
@@ -2768,24 +2789,26 @@ h3.sub-title{
     var item=getItemData(card);
     if(selectedMap.has(item.key)){
       selectedMap.delete(item.key);
-      card.classList.remove('is-selected');
-      card.setAttribute('aria-pressed','false');
+      setCardSelectionState(item.key,false);
     }else{
       selectedMap.set(item.key,item);
-      card.classList.add('is-selected');
-      card.setAttribute('aria-pressed','true');
+      setCardSelectionState(item.key,true);
     }
     renderSelection();
   }
 
   itemCards.forEach(function(card,index){
+    var item=getItemData(card);
+    card.setAttribute('data-quote-item-key',item.key);
     card.classList.add('is-selectable');
     card.setAttribute('data-quote-item-id','item-'+index);
     card.setAttribute('tabindex','0');
     card.setAttribute('role','button');
     card.setAttribute('aria-pressed','false');
-    var cardTitle=card.querySelector('h4');
-    if(cardTitle) card.setAttribute('aria-label','Add or remove '+cardTitle.textContent.trim()+' from quote request');
+    var itemCardsForKey=cardsByKey.get(item.key)||[];
+    itemCardsForKey.push(card);
+    cardsByKey.set(item.key,itemCardsForKey);
+    if(item.name) card.setAttribute('aria-label','Add or remove '+item.name+' from quote request');
     card.addEventListener('click',function(e){
       var interactiveTarget=e.target.closest(interactiveSelector);
       if(interactiveTarget && interactiveTarget!==card) return;
@@ -2816,9 +2839,8 @@ h3.sub-title{
     closeModal();
     form.reset();
     selectedMap.clear();
-    itemCards.forEach(function(card){
-      card.classList.remove('is-selected');
-      card.setAttribute('aria-pressed','false');
+    cardsByKey.forEach(function(_,key){
+      setCardSelectionState(key,false);
     });
     renderSelection();
     if(statusMsg) statusMsg.textContent='Selections cleared. You can start a new inquiry.';
@@ -2852,9 +2874,8 @@ h3.sub-title{
     }).then(function(){
       form.reset();
       selectedMap.clear();
-      itemCards.forEach(function(card){
-        card.classList.remove('is-selected');
-        card.setAttribute('aria-pressed','false');
+      cardsByKey.forEach(function(_,key){
+        setCardSelectionState(key,false);
       });
       renderSelection();
       openModal();
