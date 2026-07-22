@@ -471,8 +471,6 @@ h3.sub-title{
 }
 .sum-row:hover .sr-p{transform:scale(1.07);box-shadow:0 0 14px -3px rgba(201,162,39,0.55);}
 .sr-p .dots{color:var(--steel);}
-
-
 /* ---------- QUOTE REQUEST ---------- */
 .quote-section .sec-lead{margin-bottom:16px;}
 .quote-hint{font-size:0.82rem;color:var(--silver);margin:-2px 0 18px;}
@@ -2497,7 +2495,6 @@ h3.sub-title{
   <div class="foot"><span class="f-l">Meritt North, LLC</span><span class="f-r">Meritt North Multimedia Marketing Content Catalog</span></div>
 </section>
 
-
 <!-- ============ QUOTE REQUEST ============ -->
 <section class="section quote-section" id="quote-request">
   <div class="kicker"><span class="num">&#10003;</span> &nbsp;Quote Request</div>
@@ -2540,7 +2537,7 @@ h3.sub-title{
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="selected_items" id="selected-items-field">
         <button type="submit" class="quote-submit" id="quote-submit">Send Inquiry</button>
-        <p class="quote-error" id="quote-error">There was an issue sending your request. Please try again.</p>
+        <p class="quote-error" id="quote-error" role="alert">There was an issue sending your request. Please try again.</p>
       </form>
     </div>
   </div>
@@ -2549,11 +2546,11 @@ h3.sub-title{
 <div class="quote-modal" id="quote-success-modal" role="dialog" aria-modal="true" aria-labelledby="quote-success-title" aria-hidden="true">
   <div class="quote-modal-panel">
     <div class="quote-modal-check" aria-hidden="true">&#10003;</div>
-    <h4 id="quote-success-title">Inquiry received</h4>
+    <h4 id="quote-success-title">Inquiry Received</h4>
     <p>Thank you. We&rsquo;ll personally review your request and respond within one business day.</p>
     <div class="quote-modal-actions">
       <button type="button" class="quote-modal-btn" id="quote-modal-close">Close</button>
-      <button type="button" class="quote-modal-btn primary" id="quote-modal-again">Send Inquiry</button>
+      <button type="button" class="quote-modal-btn primary" id="quote-modal-again">Start New Inquiry</button>
     </div>
   </div>
 </div>
@@ -2682,14 +2679,30 @@ h3.sub-title{
   var modal=document.getElementById('quote-success-modal');
   var closeBtn=document.getElementById('quote-modal-close');
   var againBtn=document.getElementById('quote-modal-again');
+  var interactiveSelector='a,button,input,textarea,label,select,[role="button"],[role="link"]';
+  var recipientEmail=atob('aW1lcml0dEBtZXJpdHRub3J0aC5jb20=');
 
   function parsePrice(raw){
-    var digits=(raw||'').replace(/[^0-9]/g,'');
-    return digits?parseInt(digits,10):0;
+    var normalized=(raw||'').replace(/,/g,'').replace(/[^0-9.]/g,'');
+    var parts=normalized.split('.');
+    if(parts.length>2) return 0;
+    var parsed=parseFloat(normalized);
+    return isNaN(parsed)?0:parsed;
   }
 
   function currency(n){
     return '$'+n.toLocaleString();
+  }
+
+  function generateItemKey(card,name,itemPrice){
+    var cardId=card.getAttribute('data-quote-item-id');
+    if(cardId) return cardId;
+    var normalizedName=name.toLowerCase().replace(/\s+/g,' ').trim();
+    return normalizedName+'::'+itemPrice+'::unindexed';
+  }
+
+  function cleanText(value){
+    return String(value||'').replace(/[<>]/g,'').trim();
   }
 
   function getItemData(card){
@@ -2697,11 +2710,12 @@ h3.sub-title{
     var priceEl=card.querySelector('.price,.b-price');
     var name=titleEl?titleEl.textContent.trim():'Catalog Item';
     var rawPrice=priceEl?priceEl.textContent.trim():'$0';
+    var itemPrice=parsePrice(rawPrice);
     return {
-      key:name+'::'+rawPrice,
+      key:generateItemKey(card,name,itemPrice),
       name:name,
       priceLabel:rawPrice,
-      priceValue:parsePrice(rawPrice)
+      priceValue:itemPrice
     };
   }
 
@@ -2711,7 +2725,7 @@ h3.sub-title{
     if(!items.length){
       emptyState.style.display='block';
       totalWrap.hidden=true;
-      selectedItemsField.value='No items selected';
+      selectedItemsField.value='';
       return;
     }
 
@@ -2720,9 +2734,20 @@ h3.sub-title{
     var lines=[];
     items.forEach(function(item){
       total+=item.priceValue;
-      lines.push(item.name+' ('+item.priceLabel+')');
+      var safeName=cleanText(item.name);
+      var safePrice=cleanText(item.priceLabel);
+      lines.push(safeName+' ('+safePrice+')');
       var li=document.createElement('li');
-      li.innerHTML='<span><span class="quote-check">&#10003;</span>'+item.name+'</span><span>'+item.priceLabel+'</span>';
+      var left=document.createElement('span');
+      var check=document.createElement('span');
+      check.className='quote-check';
+      check.textContent='✓';
+      left.appendChild(check);
+      left.appendChild(document.createTextNode(safeName));
+      var right=document.createElement('span');
+      right.textContent=safePrice;
+      li.appendChild(left);
+      li.appendChild(right);
       checklist.appendChild(li);
     });
 
@@ -2745,13 +2770,15 @@ h3.sub-title{
     renderSelection();
   }
 
-  itemCards.forEach(function(card){
+  itemCards.forEach(function(card,index){
     card.classList.add('is-selectable');
+    card.setAttribute('data-quote-item-id','item-'+index);
     card.setAttribute('tabindex','0');
     card.setAttribute('role','button');
     card.setAttribute('aria-pressed','false');
     card.addEventListener('click',function(e){
-      if(e.target.closest('a,button,input,textarea,label,select')) return;
+      var interactiveTarget=e.target.closest(interactiveSelector);
+      if(interactiveTarget && interactiveTarget!==card) return;
       toggleCard(card);
     });
     card.addEventListener('keydown',function(e){
@@ -2777,6 +2804,13 @@ h3.sub-title{
   if(closeBtn) closeBtn.addEventListener('click',closeModal);
   if(againBtn) againBtn.addEventListener('click',function(){
     closeModal();
+    form.reset();
+    selectedMap.clear();
+    itemCards.forEach(function(card){
+      card.classList.remove('is-selected');
+      card.setAttribute('aria-pressed','false');
+    });
+    renderSelection();
     var nameField=document.getElementById('quote-name');
     if(nameField) nameField.focus();
   });
@@ -2797,7 +2831,7 @@ h3.sub-title{
     submitBtn.disabled=true;
     submitBtn.textContent='Sending...';
 
-    fetch('https://formsubmit.co/ajax/imeritt@merittnorth.com',{
+    fetch('https://formsubmit.co/ajax/'+encodeURIComponent(recipientEmail),{
       method:'POST',
       body:data,
       headers:{'Accept':'application/json'}
