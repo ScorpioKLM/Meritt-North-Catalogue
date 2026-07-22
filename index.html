@@ -474,6 +474,10 @@ h3.sub-title{
 /* ---------- QUOTE REQUEST ---------- */
 .quote-section .sec-lead{margin-bottom:16px;}
 .quote-hint{font-size:0.82rem;color:var(--silver);margin:-2px 0 18px;}
+.quote-status{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
 .quote-grid{display:grid;gap:18px;}
 .quote-card{
   background:linear-gradient(160deg,rgba(24,22,15,0.92),rgba(10,9,6,0.96));
@@ -2501,6 +2505,7 @@ h3.sub-title{
   <h2 class="sec-title">Build Your <span class="accent">Request</span></h2>
   <p class="sec-lead">Select any product card in the catalog above to add it to your checklist, then submit your details for a formal quote request.</p>
   <p class="quote-hint">Tap a selected card again to remove it from your checklist.</p>
+  <p class="quote-status" id="quote-status" aria-live="polite"></p>
 
   <div class="quote-grid">
     <div class="quote-card">
@@ -2676,6 +2681,7 @@ h3.sub-title{
 
   var submitBtn=document.getElementById('quote-submit');
   var errorMsg=document.getElementById('quote-error');
+  var statusMsg=document.getElementById('quote-status');
   var modal=document.getElementById('quote-success-modal');
   var closeBtn=document.getElementById('quote-modal-close');
   var againBtn=document.getElementById('quote-modal-again');
@@ -2684,8 +2690,8 @@ h3.sub-title{
 
   function parsePrice(raw){
     var normalized=(raw||'').replace(/,/g,'').replace(/[^0-9.]/g,'');
-    var parts=normalized.split('.');
-    if(parts.length>2) return 0;
+    var decimalCount=(normalized.match(/\./g)||[]).length;
+    if(decimalCount>1) return 0;
     var parsed=parseFloat(normalized);
     return isNaN(parsed)?0:parsed;
   }
@@ -2701,7 +2707,7 @@ h3.sub-title{
     return normalizedName+'::'+itemPrice+'::unindexed';
   }
 
-  function cleanText(value){
+  function stripAngleBrackets(value){
     return String(value||'').replace(/[<>]/g,'').trim();
   }
 
@@ -2726,6 +2732,7 @@ h3.sub-title{
       emptyState.style.display='block';
       totalWrap.hidden=true;
       selectedItemsField.value='';
+      if(statusMsg) statusMsg.textContent='No catalog items are currently selected.';
       return;
     }
 
@@ -2734,8 +2741,8 @@ h3.sub-title{
     var lines=[];
     items.forEach(function(item){
       total+=item.priceValue;
-      var safeName=cleanText(item.name);
-      var safePrice=cleanText(item.priceLabel);
+      var safeName=stripAngleBrackets(item.name);
+      var safePrice=stripAngleBrackets(item.priceLabel);
       lines.push(safeName+' ('+safePrice+')');
       var li=document.createElement('li');
       var left=document.createElement('span');
@@ -2754,6 +2761,7 @@ h3.sub-title{
     totalWrap.hidden=false;
     totalValue.textContent=currency(total);
     selectedItemsField.value=lines.join(' | ')+' | Estimated Total: '+currency(total);
+    if(statusMsg) statusMsg.textContent=items.length+' item'+(items.length===1?'':'s')+' selected for quote request.';
   }
 
   function toggleCard(card){
@@ -2776,6 +2784,8 @@ h3.sub-title{
     card.setAttribute('tabindex','0');
     card.setAttribute('role','button');
     card.setAttribute('aria-pressed','false');
+    var cardTitle=card.querySelector('h4');
+    if(cardTitle) card.setAttribute('aria-label','Add or remove '+cardTitle.textContent.trim()+' from quote request');
     card.addEventListener('click',function(e){
       var interactiveTarget=e.target.closest(interactiveSelector);
       if(interactiveTarget && interactiveTarget!==card) return;
@@ -2811,6 +2821,7 @@ h3.sub-title{
       card.setAttribute('aria-pressed','false');
     });
     renderSelection();
+    if(statusMsg) statusMsg.textContent='Selections cleared. You can start a new inquiry.';
     var nameField=document.getElementById('quote-name');
     if(nameField) nameField.focus();
   });
@@ -2847,9 +2858,11 @@ h3.sub-title{
       });
       renderSelection();
       openModal();
-    }).catch(function(){
+    }).catch(function(err){
       if(errorMsg){
-        errorMsg.textContent='There was an issue sending your request. Please try again.';
+        errorMsg.textContent=(err&&err.message==='Request failed')
+          ? 'Your request could not be accepted at this time. Please try again shortly.'
+          : 'Network issue detected. Please check your connection and try again.';
         errorMsg.classList.add('show');
       }
     }).finally(function(){
