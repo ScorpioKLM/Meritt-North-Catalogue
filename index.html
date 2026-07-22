@@ -471,7 +471,82 @@ h3.sub-title{
 }
 .sum-row:hover .sr-p{transform:scale(1.07);box-shadow:0 0 14px -3px rgba(201,162,39,0.55);}
 .sr-p .dots{color:var(--steel);}
-
+/* ---------- QUOTE REQUEST ---------- */
+.quote-section .sec-lead{margin-bottom:16px;}
+.quote-hint{font-size:0.82rem;color:var(--silver);margin:-2px 0 18px;}
+.quote-status{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+.quote-grid{display:grid;gap:18px;}
+.quote-card{
+  background:linear-gradient(160deg,rgba(24,22,15,0.92),rgba(10,9,6,0.96));
+  border:1px solid var(--line);border-radius:14px;padding:16px;
+  box-shadow:var(--shadow);
+}
+.quote-card h4{font-family:var(--serif-head);font-size:1.08rem;color:#fff;margin-bottom:8px;}
+.quote-empty{font-size:0.82rem;color:var(--silver);font-style:italic;}
+.quote-checklist{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.quote-checklist li{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  font-size:0.86rem;color:var(--cream-soft);padding-bottom:8px;border-bottom:1px solid rgba(201,162,39,0.16);
+}
+.quote-checklist li:last-child{border-bottom:none;padding-bottom:0;}
+.quote-check{color:var(--gold-bright);font-weight:700;margin-right:8px;}
+.quote-total{margin-top:14px;font-size:0.86rem;color:var(--gold-pale);font-weight:700;display:flex;justify-content:space-between;}
+.quote-form{display:grid;gap:12px;}
+.quote-field{display:grid;gap:6px;}
+.quote-field label{font-size:0.78rem;color:var(--gold-pale);letter-spacing:0.3px;}
+.quote-field input,.quote-field textarea{
+  width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;
+  background:rgba(8,8,8,0.45);color:#fff;font-family:var(--serif-body);font-size:0.9rem;
+}
+.quote-field input:focus,.quote-field textarea:focus{outline:1px solid var(--gold-bright);border-color:var(--gold-bright);}
+.quote-field textarea{min-height:110px;resize:vertical;}
+.quote-submit,.quote-modal-btn{
+  border:none;border-radius:32px;padding:11px 18px;font-family:var(--serif-head);
+  font-weight:700;font-size:1.02rem;cursor:pointer;
+}
+.quote-submit{
+  background:linear-gradient(120deg,var(--gold-deep),var(--gold));color:#fff;
+  box-shadow:0 10px 24px -12px rgba(201,162,39,0.8);
+}
+.quote-submit:disabled{opacity:.65;cursor:wait;}
+.quote-error{display:none;font-size:0.82rem;color:#f2a9a9;}
+.quote-error.show{display:block;}
+.prod.is-selectable,.bundle.is-selectable{cursor:pointer;}
+.prod.is-selectable:focus-visible,.bundle.is-selectable:focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px;}
+.prod.is-selected,.bundle.is-selected{
+  box-shadow:0 0 0 1px rgba(201,162,39,0.75),0 22px 44px -16px rgba(0,0,0,0.85);
+}
+.prod.is-selected::after,.bundle.is-selected::after{
+  content:'Selected';position:absolute;top:10px;right:10px;
+  font-size:0.64rem;letter-spacing:0.6px;text-transform:uppercase;
+  color:#092710;background:#bcf4d5;border-radius:30px;padding:3px 9px;font-weight:700;
+}
+.quote-modal{
+  position:fixed;inset:0;background:rgba(5,5,5,0.64);display:flex;align-items:center;justify-content:center;
+  padding:18px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s ease;
+}
+.quote-modal.open{opacity:1;pointer-events:auto;}
+.quote-modal-panel{
+  width:min(440px,100%);background:#fff;color:#262626;border:1px solid rgba(201,162,39,0.6);
+  border-radius:32px;padding:30px 24px 24px;text-align:center;
+}
+.quote-modal-check{
+  width:86px;height:86px;border-radius:50%;margin:0 auto 18px;
+  background:#c9f4dc;display:grid;place-items:center;font-size:2.45rem;color:#202020;
+}
+.quote-modal-panel h4{font-family:var(--serif-head);font-size:2rem;line-height:1.12;margin-bottom:12px;}
+.quote-modal-panel p{font-size:0.95rem;line-height:1.5;color:#4a4438;margin-bottom:22px;}
+.quote-modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.quote-modal-btn{border:1px solid rgba(201,162,39,0.5);background:#fff;color:#2d2d2d;}
+.quote-modal-btn.primary{background:linear-gradient(120deg,var(--gold-deep),var(--gold));color:#fff;border:none;}
+@media(max-width:420px){
+  .quote-modal-panel{padding:24px 18px;border-radius:24px;}
+  .quote-modal-panel h4{font-size:1.66rem;}
+  .quote-modal-actions{grid-template-columns:1fr;}
+}
 /* ---------- FOOTER ---------- */
 .foot{
   display:flex;justify-content:space-between;gap:14px;align-items:flex-end;
@@ -2424,6 +2499,66 @@ h3.sub-title{
   <div class="foot"><span class="f-l">Meritt North, LLC</span><span class="f-r">Meritt North Multimedia Marketing Content Catalog</span></div>
 </section>
 
+<!-- ============ QUOTE REQUEST ============ -->
+<section class="section quote-section" id="quote-request">
+  <div class="kicker"><span class="num">&#10003;</span> &nbsp;Quote Request</div>
+  <h2 class="sec-title">Build Your <span class="accent">Request</span></h2>
+  <p class="sec-lead">Select any product card in the catalog above to add it to your checklist, then submit your details for a formal quote request.</p>
+  <p class="quote-hint">Tap a selected card again to remove it from your checklist.</p>
+  <p class="quote-status" id="quote-status" aria-live="polite"></p>
+
+  <div class="quote-grid">
+    <div class="quote-card">
+      <h4>Selected Catalog Items</h4>
+      <p class="quote-empty" id="quote-empty">No items selected yet.</p>
+      <ul class="quote-checklist" id="quote-checklist" aria-live="polite"></ul>
+      <div class="quote-total" id="quote-total" hidden><span>Estimated Total</span><span id="quote-total-value">$0</span></div>
+    </div>
+
+    <div class="quote-card">
+      <h4>Request Proposal</h4>
+      <form id="quote-form" class="quote-form">
+        <div class="quote-field">
+          <label for="quote-name">Full Name *</label>
+          <input id="quote-name" name="name" type="text" required>
+        </div>
+        <div class="quote-field">
+          <label for="quote-email">Email *</label>
+          <input id="quote-email" name="email" type="email" required>
+        </div>
+        <div class="quote-field">
+          <label for="quote-phone">Phone</label>
+          <input id="quote-phone" name="phone" type="tel">
+        </div>
+        <div class="quote-field">
+          <label for="quote-company">Company</label>
+          <input id="quote-company" name="company" type="text">
+        </div>
+        <div class="quote-field">
+          <label for="quote-details">Project Details *</label>
+          <textarea id="quote-details" name="message" required></textarea>
+        </div>
+        <input type="hidden" name="_subject" value="New Meritt North Catalog Quote Request">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="selected_items" id="selected-items-field">
+        <button type="submit" class="quote-submit" id="quote-submit">Send Inquiry</button>
+        <p class="quote-error" id="quote-error" role="alert">There was an issue sending your request. Please try again.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div class="quote-modal" id="quote-success-modal" role="dialog" aria-modal="true" aria-labelledby="quote-success-title" aria-hidden="true">
+  <div class="quote-modal-panel">
+    <div class="quote-modal-check" aria-hidden="true">&#10003;</div>
+    <h4 id="quote-success-title">Inquiry Received</h4>
+    <p>Thank you. We&rsquo;ll personally review your request and respond within one business day.</p>
+    <div class="quote-modal-actions">
+      <button type="button" class="quote-modal-btn" id="quote-modal-close">Close</button>
+      <button type="button" class="quote-modal-btn primary" id="quote-modal-again">Start New Inquiry</button>
+    </div>
+  </div>
+</div>
 <!-- ============ CLOSING PAGE ============ -->
 <section class="closing">
   <div class="ownership">
@@ -2529,6 +2664,214 @@ h3.sub-title{
     span.textContent=rows.length+(rows.length===1?' item \u00b7 ':' items \u00b7 ')+(mn===mx?f(mn):f(mn)+'\u2013'+f(mx));
     h4.appendChild(span);
   });
+})();
+</script>
+
+<script>
+(function(){
+  var itemCards=[].slice.call(document.querySelectorAll('.prod,.bundle'));
+  var selectedMap=new Map();
+  var checklist=document.getElementById('quote-checklist');
+  var emptyState=document.getElementById('quote-empty');
+  var totalWrap=document.getElementById('quote-total');
+  var totalValue=document.getElementById('quote-total-value');
+  var selectedItemsField=document.getElementById('selected-items-field');
+  var form=document.getElementById('quote-form');
+  if(!checklist||!form||!itemCards.length) return;
+
+  var submitBtn=document.getElementById('quote-submit');
+  var errorMsg=document.getElementById('quote-error');
+  var statusMsg=document.getElementById('quote-status');
+  var modal=document.getElementById('quote-success-modal');
+  var closeBtn=document.getElementById('quote-modal-close');
+  var againBtn=document.getElementById('quote-modal-again');
+  var interactiveSelector='a,button,input,textarea,label,select,[role="button"],[role="link"]';
+  var recipientEmail=atob('aW1lcml0dEBtZXJpdHRub3J0aC5jb20=');
+
+  function parsePrice(raw){
+    var normalized=(raw||'').replace(/,/g,'').replace(/[^0-9.]/g,'');
+    var decimalCount=(normalized.match(/\./g)||[]).length;
+    if(decimalCount>1) return 0;
+    var parsed=parseFloat(normalized);
+    return isNaN(parsed)?0:parsed;
+  }
+
+  function currency(n){
+    return '$'+n.toLocaleString();
+  }
+
+  function generateItemKey(card,name,itemPrice){
+    var cardId=card.getAttribute('data-quote-item-id');
+    if(cardId) return cardId;
+    var normalizedName=name.toLowerCase().replace(/\s+/g,' ').trim();
+    return normalizedName+'::'+itemPrice+'::unindexed';
+  }
+
+  function stripAngleBrackets(value){
+    return String(value||'').replace(/[<>]/g,'').trim();
+  }
+
+  function getItemData(card){
+    var titleEl=card.querySelector('h4');
+    var priceEl=card.querySelector('.price,.b-price');
+    var name=titleEl?titleEl.textContent.trim():'Catalog Item';
+    var rawPrice=priceEl?priceEl.textContent.trim():'$0';
+    var itemPrice=parsePrice(rawPrice);
+    return {
+      key:generateItemKey(card,name,itemPrice),
+      name:name,
+      priceLabel:rawPrice,
+      priceValue:itemPrice
+    };
+  }
+
+  function renderSelection(){
+    checklist.innerHTML='';
+    var items=[].slice.call(selectedMap.values());
+    if(!items.length){
+      emptyState.style.display='block';
+      totalWrap.hidden=true;
+      selectedItemsField.value='';
+      if(statusMsg) statusMsg.textContent='No catalog items are currently selected.';
+      return;
+    }
+
+    emptyState.style.display='none';
+    var total=0;
+    var lines=[];
+    items.forEach(function(item){
+      total+=item.priceValue;
+      var safeName=stripAngleBrackets(item.name);
+      var safePrice=stripAngleBrackets(item.priceLabel);
+      lines.push(safeName+' ('+safePrice+')');
+      var li=document.createElement('li');
+      var left=document.createElement('span');
+      var check=document.createElement('span');
+      check.className='quote-check';
+      check.textContent='✓';
+      left.appendChild(check);
+      left.appendChild(document.createTextNode(safeName));
+      var right=document.createElement('span');
+      right.textContent=safePrice;
+      li.appendChild(left);
+      li.appendChild(right);
+      checklist.appendChild(li);
+    });
+
+    totalWrap.hidden=false;
+    totalValue.textContent=currency(total);
+    selectedItemsField.value=lines.join(' | ')+' | Estimated Total: '+currency(total);
+    if(statusMsg) statusMsg.textContent=items.length+' item'+(items.length===1?'':'s')+' selected for quote request.';
+  }
+
+  function toggleCard(card){
+    var item=getItemData(card);
+    if(selectedMap.has(item.key)){
+      selectedMap.delete(item.key);
+      card.classList.remove('is-selected');
+      card.setAttribute('aria-pressed','false');
+    }else{
+      selectedMap.set(item.key,item);
+      card.classList.add('is-selected');
+      card.setAttribute('aria-pressed','true');
+    }
+    renderSelection();
+  }
+
+  itemCards.forEach(function(card,index){
+    card.classList.add('is-selectable');
+    card.setAttribute('data-quote-item-id','item-'+index);
+    card.setAttribute('tabindex','0');
+    card.setAttribute('role','button');
+    card.setAttribute('aria-pressed','false');
+    var cardTitle=card.querySelector('h4');
+    if(cardTitle) card.setAttribute('aria-label','Add or remove '+cardTitle.textContent.trim()+' from quote request');
+    card.addEventListener('click',function(e){
+      var interactiveTarget=e.target.closest(interactiveSelector);
+      if(interactiveTarget && interactiveTarget!==card) return;
+      toggleCard(card);
+    });
+    card.addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.key===' '){
+        e.preventDefault();
+        toggleCard(card);
+      }
+    });
+  });
+
+  function openModal(){
+    if(!modal) return;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+  }
+
+  function closeModal(){
+    if(!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+  }
+
+  if(closeBtn) closeBtn.addEventListener('click',closeModal);
+  if(againBtn) againBtn.addEventListener('click',function(){
+    closeModal();
+    form.reset();
+    selectedMap.clear();
+    itemCards.forEach(function(card){
+      card.classList.remove('is-selected');
+      card.setAttribute('aria-pressed','false');
+    });
+    renderSelection();
+    if(statusMsg) statusMsg.textContent='Selections cleared. You can start a new inquiry.';
+    var nameField=document.getElementById('quote-name');
+    if(nameField) nameField.focus();
+  });
+  if(modal) modal.addEventListener('click',function(e){ if(e.target===modal) closeModal(); });
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(errorMsg) errorMsg.classList.remove('show');
+    if(!selectedMap.size){
+      if(errorMsg){
+        errorMsg.textContent='Please select at least one catalog item before sending your request.';
+        errorMsg.classList.add('show');
+      }
+      return;
+    }
+
+    var data=new FormData(form);
+    submitBtn.disabled=true;
+    submitBtn.textContent='Sending...';
+
+    fetch('https://formsubmit.co/ajax/'+encodeURIComponent(recipientEmail),{
+      method:'POST',
+      body:data,
+      headers:{'Accept':'application/json'}
+    }).then(function(res){
+      if(!res.ok) throw new Error('Request failed');
+      return res.json();
+    }).then(function(){
+      form.reset();
+      selectedMap.clear();
+      itemCards.forEach(function(card){
+        card.classList.remove('is-selected');
+        card.setAttribute('aria-pressed','false');
+      });
+      renderSelection();
+      openModal();
+    }).catch(function(err){
+      if(errorMsg){
+        errorMsg.textContent=(err&&err.message==='Request failed')
+          ? 'Your request could not be accepted at this time. Please try again shortly.'
+          : 'Network issue detected. Please check your connection and try again.';
+        errorMsg.classList.add('show');
+      }
+    }).finally(function(){
+      submitBtn.disabled=false;
+      submitBtn.textContent='Send Inquiry';
+    });
+  });
+
+  renderSelection();
 })();
 </script>
 </body>
